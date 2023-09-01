@@ -42,10 +42,10 @@ def rastaplp(x, fs=16000, win_time=0.025, hop_time=0.010, dorasta=True, modelord
 
     cepstra = lifter(cepstra, 0.6)
 
-    scalar = MinMaxScaler()
-    cepstra_norm = scalar.fit_transform(cepstra)
+    # scalar = MinMaxScaler()
+    # cepstra_norm = scalar.fit_transform(cepstra)
 
-    return cepstra_norm
+    return cepstra
 
 
 def powspec(x, fs=16000, window_time=0.040, hop_time=0.020, dither=1):

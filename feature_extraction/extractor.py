@@ -14,7 +14,6 @@ import torchaudio
 
 import opensmile
 import librosa
-from sklearn.preprocessing import MinMaxScaler
 from feature_extraction.rasta import  rastaplp
 import numpy as np
 import gc
@@ -68,7 +67,8 @@ class Extractor():
         self.bundle = None
         self.scalar = MinMaxScaler()
         self.pre = pre
-
+        self.window_size = 0.025
+        self.hop = 0.01
 
         if self.feature_type == "melSpectrum":
             self.feature_dimension = 40
@@ -125,32 +125,20 @@ class Extractor():
             raise ValueError("Invalid feature extractor ID")
 
     def compare_lld(self,samples, fs):
-        window_size = int(0.025 * fs)
-        step = int(0.01 * fs)
-
-        np.random.seed(0)
-        samples = samples + 0.000001 * np.random.randn(samples.shape[0])
 
         smile = opensmile.Smile(
             feature_set=opensmile.FeatureSet.ComParE_2016,
-            feature_level=opensmile.FeatureLevel.LowLevelDescriptors,
-        )
+            feature_level=opensmile.FeatureLevel.LowLevelDescriptors)
 
         feature = smile.process_signal(samples, fs).to_numpy()
 
         return feature
 
     def compare_func(self, samples, fs):
-        window_size = int(0.025 * fs)
-        step = int(0.01 * fs)
-
-        np.random.seed(0)
-        samples = samples + 0.000001 * np.random.randn(samples.shape[0])
 
         smile = opensmile.Smile(
             feature_set=opensmile.FeatureSet.ComParE_2016,
-            feature_level=opensmile.FeatureLevel.Functionals,
-        )
+            feature_level=opensmile.FeatureLevel.Functionals)
 
         feature = smile.process_signal(samples, fs).to_numpy()
 
@@ -161,25 +149,18 @@ class Extractor():
         return emb_dict['embedding'].numpy()
 
     def egemap_func(self,samples, fs):
-        np.random.seed(0)
-        samples = samples + 0.000001 * np.random.randn(samples.shape[0])
 
         smile = opensmile.Smile(
             feature_set=opensmile.FeatureSet.eGeMAPSv02,
-            feature_level=opensmile.FeatureLevel.Functionals,
-        )
+            feature_level=opensmile.FeatureLevel.Functionals)
         feature = smile.process_signal(samples, fs).to_numpy()
         return feature
 
     def egemap_lld(self, samples, fs):
 
-        np.random.seed(0)
-        samples = samples + 0.000001 * np.random.randn(samples.shape[0])
-
         smile = opensmile.Smile(
             feature_set=opensmile.FeatureSet.eGeMAPSv02,
-            feature_level=opensmile.FeatureLevel.LowLevelDescriptors,
-        )
+            feature_level=opensmile.FeatureLevel.LowLevelDescriptors)
         feature = smile.process_signal(samples, fs).to_numpy()
 
         return feature
@@ -193,11 +174,9 @@ class Extractor():
         return embeddings
 
     def log_mel_fb(self, samples, fs, delta = False):
-        window_size = int(0.025 * fs)
-        step = int(0.01 * fs)
+        window_size = int(self.window_size * fs)
+        step = int(self.hop * fs)
 
-        np.random.seed(0)
-        samples = samples + 0.000001 * np.random.randn(samples.shape[0])
         spectrogram = librosa.feature.melspectrogram(y=samples, sr=fs, fmax=fs / 2, n_fft=2048, hop_length=step,
                                                     win_length=window_size, n_mels=self.feature_dimension)
 
@@ -227,10 +206,10 @@ class Extractor():
             return input_sig - np.c_[input_sig[..., :1], input_sig[..., :-1]] * pre
     def vad_energy_sidekit(self, samples, fs):
 
-        window_size = int(0.025 * fs)
-        # step = int(0.01 * fs)
+        window_size = int(self.window_size * fs)
+        step = int(self.hop * fs)
 
-        frames = librosa.util.frame(samples, frame_length=window_size, hop_length=window_size).transpose()
+        frames = librosa.util.frame(samples, frame_length=window_size, hop_length=step).transpose()
         log_energy = np.sqrt(np.sum(frames ** 2, axis=1))
         label, _ = vad_energy(log_energy,
                    distrib_nb=3,
@@ -254,6 +233,8 @@ class Extractor():
         #     return samples
         return np.concatenate(samples_voice)
     def compute(self, samples, fs, vad = True, pre_emphasis = True):
+        np.random.seed(0)
+        samples = samples + 0.000001 * np.random.randn(samples.shape[0])
         if pre_emphasis:
             samples = self.pre_emphasis(samples, self.pre)
         if vad:
