@@ -1,6 +1,6 @@
 # mental_health_monitoring_PIPELINE
 
-Pipeline
+Pipeline for Androids-Corpora
 
 1- Create label.txt with groundtruth. Its structure should be as follows:
 
@@ -18,3 +18,5 @@ Pipeline
 4- Run feature_extraction.py script
   * Features are extracted by segments of 1 minutes. It avoids running out of memory and also gives a context to the normalization strategy
   * Analyse result with and without apply VAD and the influence of the sequence length in this study
+
+5- Run folds_default_Androids-Corpus.py for creating default fold list per tasks

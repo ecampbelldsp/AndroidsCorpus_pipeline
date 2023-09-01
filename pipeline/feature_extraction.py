@@ -21,6 +21,7 @@ from feature_extraction.extractor import Extractor,DataAugmentation
 
 start = time.time()
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
+os.chdir("../")
 
 feature_params = {
     "hubert_base": (768, 250),
@@ -106,8 +107,8 @@ def main(feature_type, device, set ="", TASK_LIST = ""):
     if device == "gpu":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    if not os.path.exists("features"):
-        os.mkdir("features")
+    if not os.path.exists("../features"):
+        os.mkdir("../features")
 
     for task in TASK_LIST:
         feature_extractor = Extractor(feature_type=feature_type, device=device, vad =True)
