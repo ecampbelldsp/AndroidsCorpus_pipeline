@@ -126,12 +126,13 @@ if __name__ == "__main__":
     RUNS = 10
     TASK_LIST = ["Interview-Task"]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
-    feature_type = "melSpectrum"
+    feature_type = "melSpectrum"#"melSpectrum" compare_lld
 
 
     mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
     for task in TASK_LIST:
+        #Setting Mlflow experiment name
         os.environ["MLFLOW_EXPERIMENT_NAME"] = f"{CORPUS}-{task}"
         # Define hyperparameters
         metric_fold_collection = {"accuracy": [], "recall": [], "precision": [], "auc": [], "f1": []}
@@ -139,12 +140,10 @@ if __name__ == "__main__":
         learning_rate = 0.001
         num_epochs = 1
         validation_rate = 0.3
+        TIMESTEP = FEATURE_PARMS[feature_type][1]
 
         params = {"batch_size": batch_size, "learning_rate": learning_rate, "Epochs": num_epochs,
-                  "validation_rate": validation_rate, "runs":RUNS}
-
-
-        TIMESTEP = FEATURE_PARMS[feature_type][1]
+                  "validation_rate": validation_rate, "runs":RUNS,"Feature": feature_type,"Sequence length":TIMESTEP}
 
         metric_fold = []
         for t in range(RUNS):
@@ -153,9 +152,11 @@ if __name__ == "__main__":
             with mlflow.start_run(run_name=f"{ID}_{t}") as run:
                 log_params(params)
                 label = np.genfromtxt(f"label/label_{CORPUS}_{task}.txt", dtype=str, delimiter=" ")[1:,:]
+                # test_name =set(list(label[:,0]))
                 folds = np.genfromtxt(f"default-folds_Androids-Corpus/fold_{task}.txt", delimiter=",",dtype=str)
                 hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}.h5", 'r')
 
+                #Creating K-Folds and loading features
                 folds_test = []
                 folds_train = [[],[],[],[],[]]
                 x_train =[]
