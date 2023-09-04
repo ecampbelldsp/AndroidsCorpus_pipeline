@@ -1,4 +1,12 @@
 # mental_health_monitoring_PIPELINE
+Description of Androids-Corpus
+
+• The distinction between depressed and non-depressed speak-
+ers was made by professional psychiatrists and not through
+the administration of self-assessment questionnaires. This
+means that the data allows one to investigate depression de-
+tection and not prediction of scores obtained through ques-
+tionnaires, known to be affected by multiple biases [17].
 
 Pipeline for Androids-Corpora
 
@@ -20,3 +28,5 @@ Pipeline for Androids-Corpora
   * Analyse result with and without apply VAD and the influence of the sequence length in this study
 
 5- Run folds_default_Androids-Corpus.py for creating default fold list per tasks
+
+
