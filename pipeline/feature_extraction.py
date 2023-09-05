@@ -18,6 +18,7 @@ import torch
 import multiprocessing
 import librosa
 
+print(os.getcwd())
 from FeatureExtraction.extractor import Extractor,DataAugmentation
 from box.utilities import select_gpu_with_most_free_memory
 
@@ -133,8 +134,8 @@ if __name__ == '__main__':
         paralel = False
 
         CORPUS = "Androids-Corpus"
-        TASK_LIST = ["Interview-Task"]
-        root = "/media/ecampbell/D/Data-io/"# "Reading-Task"
+        TASK_LIST = ["Interview-Task"] # "Reading-Task"
+        root = "/media/ecampbell/D/Data-io/"# PATH TO THE DATABASE
         feature_list = ["wav2vec2_base", "rasta", "melSpectrum","egemap_lld", "compare_lld", "hubert_base"]
         with_interviewer = True
 
