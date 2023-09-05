@@ -10,7 +10,7 @@ root/---- "Androids-Corpus" ----|
                                 |
                                 |--- "Reading-Task"--- "audio" --- *.wav
 
-
+[//]: # ()
 • The distinction between depressed and non-depressed speak-
 ers was made by professional psychiatrists and not through
 the administration of self-assessment questionnaires. This

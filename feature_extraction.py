@@ -7,7 +7,7 @@ Created on  29/8/23 9:08
 contact: ecampbelldsp@gmail.com
 """
 import os
-os.chdir("../")
+# os.chdir("../")
 
 import time
 import numpy as np
