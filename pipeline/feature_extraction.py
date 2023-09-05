@@ -102,7 +102,7 @@ def extract_features(label, path, hf, feature_extractor, data_augmentation = Fal
                     hf.create_dataset(name + "_" + technique, data=feature_augmentation[technique])
         hf.close()
 
-def main(feature_type, device, set ="", TASK_LIST = ""):
+def main(feature_type, device, set ="", TASK_LIST = "", audio_path = ""):
     if device == "gpu":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -111,13 +111,13 @@ def main(feature_type, device, set ="", TASK_LIST = ""):
 
     for task in TASK_LIST:
         feature_extractor = Extractor(feature_type=feature_type, device=device, vad =True)
-        root = "/media/ecampbell/D/Data-io/"
-        path = f"{root}{set}/{task}/audio_clip_gathering/"
-
         label = np.genfromtxt(f"label/label_{set}_{task}.txt", dtype=str, delimiter=" ")
 
+        root = "/media/ecampbell/D/Data-io/"
+        audio_path = f"{root}{set}/{task}/audio_clip_gathering/"  #audio
+
         hf = h5py.File(f"features/{feature_type}_{set}_{task}.h5", 'w')
-        extract_features(label, path, hf, feature_extractor, data_augmentation=False, set = set, task = task)
+        extract_features(label, audio_path, hf, feature_extractor, data_augmentation=False, set = set, task = task)
 
 
 if __name__ == '__main__':
@@ -127,8 +127,9 @@ if __name__ == '__main__':
 
         CORPUS = "Androids-Corpus"
         TASK_LIST = ["Interview-Task"]  # "Reading-Task"
-
         feature_list = ["rasta", "melSpectrum","egemap_lld", "compare_lld", "wav2vec2_base", "hubert_base"]
+
+
 
         if paralel:
             pool = multiprocessing.Pool(len(feature_list))
