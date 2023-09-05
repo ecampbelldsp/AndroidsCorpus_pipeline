@@ -137,15 +137,16 @@ if __name__ == '__main__':
         TASK_LIST = ["Interview-Task"] # "Reading-Task"
         root = "/media/ecampbell/D/Data-io/"# PATH TO THE DATABASE
         feature_list = ["wav2vec2_base", "rasta", "melSpectrum","egemap_lld", "compare_lld", "hubert_base"]
-        with_interviewer = True
+        # with_interviewer = True
 
+        for with_interviewer in [True, False]:
 
-        if paralel:
-            pool = multiprocessing.Pool(len(feature_list))
-            processes = [pool.apply_async(main, args=(feature_type, CORPUS, TASK_LIST,root,with_interviewer)) for feature_type in feature_list]
-            result = [p.get() for p in processes]
-        else:
-            for feature_type in feature_list:
-                main(feature_type, CORPUS, TASK_LIST,root,with_interviewer)
+            if paralel:
+                pool = multiprocessing.Pool(len(feature_list))
+                processes = [pool.apply_async(main, args=(feature_type, CORPUS, TASK_LIST,root,with_interviewer)) for feature_type in feature_list]
+                result = [p.get() for p in processes]
+            else:
+                for feature_type in feature_list:
+                    main(feature_type, CORPUS, TASK_LIST,root,with_interviewer)
 
         print(f"Execution time: {(time.time() - start) / 3600} hours")
