@@ -131,7 +131,7 @@ def main(feature_type, set ="", TASK_LIST = "", root = "", with_interviewer = Fa
 
 if __name__ == '__main__':
 
-        paralel = False
+        paralel = True
 
         CORPUS = "Androids-Corpus"
         TASK_LIST = ["Interview-Task"] # "Reading-Task"

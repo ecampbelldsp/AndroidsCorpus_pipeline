@@ -35,7 +35,7 @@ if __name__ == "__main__":
     TASK_LIST = ["Interview-Task"]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
     FEATURE_TYPE_LIST = ["melSpectrum", "rasta", "compare_lld","egemap_lld", "hubert_base", "wav2vec2_base"]
-    with_interviewer = False
+    with_interviewer = True
     # feature_type = "melSpectrum"#"melSpectrum" compare_lld egemap_lld rasta hubert_base wav2vec2_base
     for feature_type in FEATURE_TYPE_LIST:
         if not os.path.exists("model"):
