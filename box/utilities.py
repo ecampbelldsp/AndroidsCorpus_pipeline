@@ -36,7 +36,7 @@ def select_gpu_with_most_free_memory():
         return selected_gpu,"cuda"
     else:
         print("No GPU available. Using CPU.")
-        return "cpu"
+        return None,"cpu"
 
 def making_sequence(features, timestep = None):
     size = features.shape[0]

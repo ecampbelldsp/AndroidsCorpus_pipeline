@@ -7,6 +7,8 @@ Created on  29/8/23 9:08
 contact: ecampbelldsp@gmail.com
 """
 import os
+os.chdir("../")
+
 import time
 import numpy as np
 
@@ -16,12 +18,11 @@ import torch
 import multiprocessing
 import librosa
 
-from feature_extraction.extractor import Extractor,DataAugmentation
-
+from FeatureExtraction.extractor import Extractor,DataAugmentation
+from box.utilities import select_gpu_with_most_free_memory
 
 start = time.time()
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
-os.chdir("../")
 
 feature_params = {
     "hubert_base": (768, 250),
@@ -102,9 +103,10 @@ def extract_features(label, path, hf, feature_extractor, data_augmentation = Fal
                     hf.create_dataset(name + "_" + technique, data=feature_augmentation[technique])
         hf.close()
 
-def main(feature_type, device, set ="", TASK_LIST = "", audio_path = ""):
-    if device == "gpu":
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def main(feature_type, set ="", TASK_LIST = "", root = "", with_interviewer = False):
+    selected_device, device =select_gpu_with_most_free_memory()
+    # if device == "gpu":
+    #     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if not os.path.exists("../features"):
         os.mkdir("../features")
@@ -113,30 +115,33 @@ def main(feature_type, device, set ="", TASK_LIST = "", audio_path = ""):
         feature_extractor = Extractor(feature_type=feature_type, device=device, vad =True)
         label = np.genfromtxt(f"label/label_{set}_{task}.txt", dtype=str, delimiter=" ")
 
-        root = "/media/ecampbell/D/Data-io/"
-        audio_path = f"{root}{set}/{task}/audio_clip_gathering/"  #audio
-
+        if with_interviewer:
+            audio_path = f"{root}{set}/{task}/audio/"
+        else:
+            audio_path = f"{root}{set}/{task}/audio_clip_gathering/"  #audio
+        if not os.path.exists("features"):
+            os.mkdir("features")
         hf = h5py.File(f"features/{feature_type}_{set}_{task}.h5", 'w')
         extract_features(label, audio_path, hf, feature_extractor, data_augmentation=False, set = set, task = task)
 
 
 if __name__ == '__main__':
 
-        device = "gpu"#"cpu"
-        paralel = True
+        paralel = False
 
         CORPUS = "Androids-Corpus"
-        TASK_LIST = ["Interview-Task"]  # "Reading-Task"
-        feature_list = ["rasta", "melSpectrum","egemap_lld", "compare_lld", "wav2vec2_base", "hubert_base"]
-
+        TASK_LIST = ["Interview-Task"]
+        root = "/media/ecampbell/D/Data-io/"# "Reading-Task"
+        feature_list = ["wav2vec2_base", "rasta", "melSpectrum","egemap_lld", "compare_lld", "hubert_base"]
+        with_interviewer = True
 
 
         if paralel:
             pool = multiprocessing.Pool(len(feature_list))
-            processes = [pool.apply_async(main, args=(feature_type,device, CORPUS, TASK_LIST)) for feature_type in feature_list]
+            processes = [pool.apply_async(main, args=(feature_type, CORPUS, TASK_LIST,root,with_interviewer)) for feature_type in feature_list]
             result = [p.get() for p in processes]
         else:
             for feature_type in feature_list:
-                main(feature_type, device, CORPUS, TASK_LIST)
+                main(feature_type, CORPUS, TASK_LIST,root,with_interviewer)
 
         print(f"Execution time: {(time.time() - start) / 3600} hours")
