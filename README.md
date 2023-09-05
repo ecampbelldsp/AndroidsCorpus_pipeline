@@ -30,3 +30,6 @@ Pipeline for Androids-Corpora
 5- Run folds_default_Androids-Corpus.py for creating default fold list per tasks
 
 
+Goals
+
+    * Compare results with and without the presence in the recordings of the interviewer

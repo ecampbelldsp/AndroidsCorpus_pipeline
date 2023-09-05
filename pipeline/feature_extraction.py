@@ -66,7 +66,6 @@ def extract_features(label, path, hf, feature_extractor, data_augmentation = Fal
                 samples = librosa.resample(samples, orig_sr=fs, target_sr=16000)
                 fs = 16000
 
-
             if duration > audio_max_length:
                 feature = get_features_per_chunk(feature_extractor,samples, fs, duration, audio_max_length, PREEMPHASIS, VAD)
             else:
