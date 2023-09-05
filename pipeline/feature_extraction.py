@@ -115,13 +115,16 @@ def main(feature_type, set ="", TASK_LIST = "", root = "", with_interviewer = Fa
         feature_extractor = Extractor(feature_type=feature_type, device=device, vad =True)
         label = np.genfromtxt(f"label/label_{set}_{task}.txt", dtype=str, delimiter=" ")
 
-        if with_interviewer:
-            audio_path = f"{root}{set}/{task}/audio/"
-        else:
-            audio_path = f"{root}{set}/{task}/audio_clip_gathering/"  #audio
         if not os.path.exists("features"):
             os.mkdir("features")
-        hf = h5py.File(f"features/{feature_type}_{set}_{task}.h5", 'w')
+        if with_interviewer:
+            audio_path = f"{root}{set}/{task}/audio/"
+            hf = h5py.File(f"features/{feature_type}_{set}_{task}_with_interviewer.h5", 'w')
+        else:
+            audio_path = f"{root}{set}/{task}/audio_clip_gathering/"  #audio
+            hf = h5py.File(f"features/{feature_type}_{set}_{task}.h5", 'w')
+
+
         extract_features(label, audio_path, hf, feature_extractor, data_augmentation=False, set = set, task = task)
 
 

@@ -1,5 +1,15 @@
-# mental_health_monitoring_PIPELINE
+# AndroidsCorpus_pipeline
 Description of Androids-Corpus
+
+Database path format to proper load
+    
+                                                        |--- "audio" --- *.wav
+                                |--- "Interview-Task"---|    
+                                |                       |--- "audio_clip_gathering" --- *.wav
+root/---- "Androids-Corpus" ----|
+                                |
+                                |--- "Reading-Task"--- "audio" --- *.wav
+
 
 • The distinction between depressed and non-depressed speak-
 ers was made by professional psychiatrists and not through
@@ -33,3 +43,10 @@ Pipeline for Androids-Corpora
 Goals
 
     * Compare results with and without the presence in the recordings of the interviewer
+
+
+
+
+
+
+

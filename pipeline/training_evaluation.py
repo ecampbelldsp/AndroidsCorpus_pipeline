@@ -35,6 +35,7 @@ if __name__ == "__main__":
     TASK_LIST = ["Interview-Task"]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
     FEATURE_TYPE_LIST = ["melSpectrum", "rasta", "compare_lld","egemap_lld", "hubert_base", "wav2vec2_base"]
+    with_interviewer = False
     # feature_type = "melSpectrum"#"melSpectrum" compare_lld egemap_lld rasta hubert_base wav2vec2_base
     for feature_type in FEATURE_TYPE_LIST:
         if not os.path.exists("model"):
@@ -57,7 +58,8 @@ if __name__ == "__main__":
                     "batch_size": batch_size, "learning_rate": learning_rate,
                     "Epochs": num_epochs,"Early_stop": EARLY_STOP,
                     "validation_rate": validation_rate, "runs":RUNS,
-                    "Feature": feature_type,"Sequence length":TIMESTEP, "device":device
+                    "Feature": feature_type,"Sequence length":TIMESTEP, "device":device,
+                    "Interviewer in recording": with_interviewer
             }
 
             metric_fold = []
@@ -69,8 +71,10 @@ if __name__ == "__main__":
 
                     #Loading default distribution folds files
                     folds = np.genfromtxt(f"default-folds_Androids-Corpus/fold_{task}.txt", delimiter=",",dtype=str)
-                    hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}.h5", 'r')
-
+                    if not with_interviewer:
+                        hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}.h5", 'r')
+                    else:
+                        hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}_with_interviewer.h5", 'r')
                     #Creating K-Folds and loading features
                     folds_test = []
                     for f in range(folds.shape[0]):
