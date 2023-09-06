@@ -15,7 +15,7 @@ import torch
 def select_gpu_with_most_free_memory():
     if torch.cuda.is_available():
         num_gpus = torch.cuda.device_count()
-
+        print(f"GPU amount: {num_gpus}")
         if num_gpus > 1:
             gpu_memory = []
 
