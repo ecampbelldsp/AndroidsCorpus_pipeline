@@ -73,11 +73,11 @@ def extract_features(label, path, hf, feature_extractor, data_augmentation = Fal
                 samples = librosa.resample(samples, orig_sr=fs, target_sr=16000)
                 fs = 16000
 
-            feature = np.zeros((1,1))
-            # if duration > audio_max_length:
-            #     feature = get_features_per_chunk(feature_extractor,samples, fs, duration, audio_max_length, PREEMPHASIS, VAD)
-            # else:
-            #     feature = feature_extractor.compute(samples, fs,vad = VAD, pre_emphasis = PREEMPHASIS)
+            # feature = np.zeros((1,1))
+            if duration > audio_max_length:
+                feature = get_features_per_chunk(feature_extractor,samples, fs, duration, audio_max_length, PREEMPHASIS, VAD)
+            else:
+                feature = feature_extractor.compute(samples, fs,vad = VAD, pre_emphasis = PREEMPHASIS)
 
             samples_augmentation = {"noisy": "","time_stretch": "","pitch_shift": "","time_mask": ""}
             if data_augmentation:
