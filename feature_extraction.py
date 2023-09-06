@@ -141,7 +141,7 @@ if __name__ == '__main__':
 
         CORPUS = "Androids-Corpus"
         TASK_LIST = ["Interview-Task"] # "Reading-Task"
-        root = "/media/ecampbell/D/Data-io/"# PATH TO THE DATABASE
+        root = "/home/gts/projects/ecampbell/databases/"#"/media/ecampbell/D/Data-io/"# PATH TO THE DATABASE
         feature_list = ["wav2vec2_base", "rasta", "melSpectrum","egemap_lld", "compare_lld", "hubert_base"]
         # feature_list = ["rasta"]
 
