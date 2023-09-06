@@ -16,12 +16,9 @@ def select_gpu_with_most_free_memory():
     if torch.cuda.is_available():
         num_gpus = torch.cuda.device_count()
         print(f"GPU amount: {num_gpus}")
-        if num_gpus >= 1:
+        if num_gpus > 1:
             gpu_memory = []
-
             for i in range(num_gpus):
-                gpu = torch.cuda.get_device_properties(i)
-                # free_memory = gpu.total_memory - gpu.memory_allocated()
                 free_memory = torch.cuda.mem_get_info(device = i)[0]
                 gpu_memory.append((i, free_memory))
 
