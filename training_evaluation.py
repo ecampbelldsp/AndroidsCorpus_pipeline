@@ -8,7 +8,6 @@ contact: ecampbelldsp@gmail.com
 """
 import gc
 import os
-os.chdir("../")
 
 import datetime
 import numpy as np
