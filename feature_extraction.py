@@ -58,9 +58,14 @@ def extract_features(label, path, hf, feature_extractor, data_augmentation = Fal
         VAD = False
         PREEMPHASIS = True
         for i, name in enumerate(label[1:, 0]):
+            # if i < 58:
+            #     continue
             print(f"{task.upper()} {set.upper()} {i + 1} - {label.shape[0]-1} {feature_extractor.feature_type}")
 
             samples, fs = snd.read(f"{path}{name}")
+            #Channel fusion if there is more than one channel
+            if len(samples.shape) > 1:
+                samples = samples.sum(axis=1) / 2
             duration = len(samples) / fs
             audio_max_length = 30
 
@@ -68,10 +73,11 @@ def extract_features(label, path, hf, feature_extractor, data_augmentation = Fal
                 samples = librosa.resample(samples, orig_sr=fs, target_sr=16000)
                 fs = 16000
 
-            if duration > audio_max_length:
-                feature = get_features_per_chunk(feature_extractor,samples, fs, duration, audio_max_length, PREEMPHASIS, VAD)
-            else:
-                feature = feature_extractor.compute(samples, fs,vad = VAD, pre_emphasis = PREEMPHASIS)
+            feature = np.zeros((1,1))
+            # if duration > audio_max_length:
+            #     feature = get_features_per_chunk(feature_extractor,samples, fs, duration, audio_max_length, PREEMPHASIS, VAD)
+            # else:
+            #     feature = feature_extractor.compute(samples, fs,vad = VAD, pre_emphasis = PREEMPHASIS)
 
             samples_augmentation = {"noisy": "","time_stretch": "","pitch_shift": "","time_mask": ""}
             if data_augmentation:
@@ -137,6 +143,8 @@ if __name__ == '__main__':
         TASK_LIST = ["Interview-Task"] # "Reading-Task"
         root = "/media/ecampbell/D/Data-io/"# PATH TO THE DATABASE
         feature_list = ["wav2vec2_base", "rasta", "melSpectrum","egemap_lld", "compare_lld", "hubert_base"]
+        # feature_list = ["rasta"]
+
         # with_interviewer = True
 
         for with_interviewer in [True, False]:

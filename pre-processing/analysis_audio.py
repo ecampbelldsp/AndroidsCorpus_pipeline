@@ -3,11 +3,13 @@ import matplotlib
 matplotlib.use('qtagg')
 import matplotlib.pyplot as plt
 import os
+os.chdir("../")
 import soundfile as snd
 
 CORPUS = "Androids-Corpus"
 TASK_LIST = ["Interview-Task", "Reading-Task"]
 problematic_signals = []
+with_interviewer = False
 def plot_histogram(data_healthy=None, data_unhealthy=None, save_path="./", xlabel="", ylabel="", title=""):
     plt.figure(figsize=(10, 4))
     plt.title(title)
@@ -112,15 +114,17 @@ def main():
         plt.close()
 
         # for task in ["Interview-Task", "Reading-Task"]:
-        if task == "Interview-Task":
+        if task == "Interview-Task" and not with_interviewer:
             audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio_clip/"
+        elif task == "Interview-Task" and with_interviewer:
+            audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio/"
         elif task == "Reading-Task":
             audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio/"
         duration_pos, duration_neg = [], []
         for i, name in enumerate(label[1:,0]):
             print(f"Recording {i+1} - {len(label[1:,0])}  {task}")
 
-            if task == "Interview-Task":
+            if task == "Interview-Task" and not with_interviewer:
                 name = name[:-4]
                 audio_clips = os.listdir(f"{audio_path}{name}")
                 samples = []
@@ -128,6 +132,8 @@ def main():
                     samples_clip,fs = snd.read(f"{audio_path}{name}/{name_clips}")
                     samples.append(samples_clip)
                 samples = np.concatenate(samples)
+            elif task == "Interview-Task" and with_interviewer:
+                samples, fs = snd.read(f"{audio_path}{name}")
             elif task == "Reading-Task":
                 samples, fs = snd.read(f"{audio_path}{name}")
             if np.any(np.isnan(samples)):
