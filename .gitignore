@@ -2,7 +2,7 @@ mlruns
 mlartifacts
 outputs
 model
-Corpora_analysis
+Corpora_analysis/Androids-Corpus
 *.pdf
 
 # Byte-compiled / optimized / DLL files
