@@ -42,6 +42,8 @@ def train_CNN_LSTM(model, params, train=None, val=None, r = None, f = None):
     MIN_VALIDATION_LOSS = np.inf
     if EARLY_STOP["Do"]:
         consecutive_attempt = 0
+    loss_train_plot = []
+    loss_val_plot = []
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0.0
@@ -59,6 +61,8 @@ def train_CNN_LSTM(model, params, train=None, val=None, r = None, f = None):
             total_loss += loss.item()
 
         avg_loss = total_loss / len(train_loader)
+        loss_train_plot.append(avg_loss)
+
         print(f"\n{feature_type.upper()} Run {r + 1} Fold {f + 1}")
         print(f"Training Loss: {avg_loss:.4f}")
         # Validation loop
@@ -80,6 +84,8 @@ def train_CNN_LSTM(model, params, train=None, val=None, r = None, f = None):
 
         validation_accuracy = total_correct / total_samples
         avg_loss = total_val_loss / len(val_loader)
+        loss_val_plot.append(avg_loss)
+
         print(f"Validation Loss: {avg_loss:.4f} ( Accuracy: {validation_accuracy * 100:.2f}% )")
         if avg_loss < MIN_VALIDATION_LOSS:
             print("--" * 30)
@@ -94,6 +100,7 @@ def train_CNN_LSTM(model, params, train=None, val=None, r = None, f = None):
             print("Early stop activated\n")
             break
     # Loading best model and deleting temporal file
+
     print("Loading best model ...")
     model.load_state_dict(torch.load(f"model/tmp.pth"))
     os.remove("model/tmp.pth")
@@ -102,4 +109,4 @@ def train_CNN_LSTM(model, params, train=None, val=None, r = None, f = None):
         del inputs, targets
         gc.collect()
         torch.cuda.empty_cache()
-    return model
+    return model, [loss_train_plot, loss_val_plot]

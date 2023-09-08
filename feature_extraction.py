@@ -7,14 +7,11 @@ Created on  29/8/23 9:08
 contact: ecampbelldsp@gmail.com
 """
 import os
-# os.chdir("../")
-
+import sys
 import time
 import numpy as np
-
 import h5py
 import soundfile as snd
-import torch
 import multiprocessing
 import librosa
 
@@ -137,15 +134,15 @@ def main(feature_type, set ="", TASK_LIST = "", root = "", with_interviewer = Fa
 
 if __name__ == '__main__':
 
+        if len(sys.argv) == 1:
+            root = "/media/ecampbell/D/Data-io/"  # "/media/ecampbell/D/Data-io/"# PATH TO THE DATABASE
+        else:
+            root = sys.argv[1]
         paralel = True
-
         CORPUS = "Androids-Corpus"
         TASK_LIST = ["Interview-Task"] # "Reading-Task"
-        root = "/home/gts/projects/ecampbell/databases/"#"/media/ecampbell/D/Data-io/"# PATH TO THE DATABASE
         feature_list = ["wav2vec2_base", "rasta", "melSpectrum","egemap_lld", "compare_lld", "hubert_base"]
-        # feature_list = ["rasta"]
 
-        # with_interviewer = True
 
         for with_interviewer in [True, False]:
 

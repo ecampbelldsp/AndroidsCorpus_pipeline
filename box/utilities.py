@@ -6,8 +6,10 @@ Created on  5/9/23 2:06
 @author: Edward L. Campbell Hernández
 contact: ecampbelldsp@gmail.com
 """
+import os.path
 
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 from sklearn import metrics
 import torch
@@ -69,8 +71,7 @@ def split_train_data(x_train,y_train,validation_rate):
 
     return x_train,y_train,x_val,y_val
 
-def computing_performance(score, prediction_task="binary", label=None, K=None, params=None, result_folder_runs=None):
-    metric_fold = {"accuracy": None, "recall": None, "precision": None, "auc": None, "f1": None, "folds_name": None}
+def computing_performance(score, metric_fold, prediction_task="binary", label=None, K=None, R = None, params=None, result_folder_runs=None):
     # with open(f"{result_folder_runs}{K}_performance.txt", "w") as file:
     y_truth = np.asarray(label, dtype=float).astype(int)
     fpr, tpr, thresholds = metrics.roc_curve(y_truth, score, pos_label=1)
@@ -84,21 +85,20 @@ def computing_performance(score, prediction_task="binary", label=None, K=None, p
     estimation_final[pos] = 1
 
     # estimation_final, optimal_threshold, accuracy_max = final_estimation(score, y_truth)
-    metric_fold["folds_name"] = K
     acc_final = round(metrics.accuracy_score(y_truth, estimation_final) * 100, 2)
-    metric_fold["accuracy"] = acc_final
+    metric_fold["accuracy"][R,K] = acc_final
 
     precision_final = round(metrics.precision_score(y_truth, estimation_final, average="macro") * 100, 2)
-    metric_fold["precision"] = precision_final
+    metric_fold["precision"][R,K] = precision_final
 
     f1_final = round(metrics.f1_score(y_truth, estimation_final, average="macro") * 100, 2)
-    metric_fold["f1"] = f1_final
+    metric_fold["f1"][R,K] = f1_final
 
     recall_final = round(metrics.recall_score(y_truth, estimation_final, average="macro") * 100, 2)
-    metric_fold["recall"] = recall_final
+    metric_fold["recall"][R,K] = recall_final
 
     auc_final = round(metrics.auc(fpr, tpr) * 100, 2)
-    metric_fold["auc"] = auc_final
+    metric_fold["auc"][R,K] = auc_final
 
     print(metrics.classification_report(y_truth, estimation_final, target_names=['0', '1'], digits=4))
 
@@ -107,3 +107,54 @@ def computing_performance(score, prediction_task="binary", label=None, K=None, p
     print("AUC: " + str(auc_final))
 
     return metric_fold
+
+
+def heat_map(data):
+    """
+    data: (axis 0: RUNS,  axis 1: Folds)
+    """
+    # Create a heatmap-like matrix
+    fig, ax = plt.subplots()
+    cax = ax.matshow(data, cmap='coolwarm')
+
+    # Add values to the cells
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            ax.text(j, i, f'{data[i, j]:.0f}', va='center', ha='center', color='black',fontsize = 10)
+
+    # Customize the colorbar
+    cbar = plt.colorbar(cax)
+
+    plt.xlabel('Folds')
+    plt.ylabel('Runs')
+
+    if not os.path.exists("fig"):
+        os.mkdir("fig")
+    plt.savefig("fig/accuracy_heatmap.pdf")
+    plt.savefig("fig/accuracy_heatmap.png")
+    plt.close()
+
+    return "fig/accuracy_heatmap.pdf", "fig/accuracy_heatmap.png"
+
+def plot_loss(training_loss,validation_loss, R="", F=""):
+
+    # Create the plot
+    plt.plot(training_loss, label='Training Loss')
+    plt.plot(validation_loss, label='Validation Loss')
+
+    # Add labels and a legend
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend()
+
+    # Show the plot
+    plt.grid(True)
+
+    if not os.path.exists("fig"):
+        os.mkdir("fig")
+    plt.savefig(f"fig/loss_run{R}_fold{F}.png")
+    plt.savefig(f"fig/loss_run{R}_fold{F}.pdf")
+    plt.close()
+
+    return f"fig/loss_run{R}_fold{F}.png", f"fig/loss_run{R}_fold{F}.pdf"

@@ -12,25 +12,26 @@ import os
 import datetime
 import numpy as np
 import matplotlib
-matplotlib.use('qtagg')
+# matplotlib.use('qtagg')
 import matplotlib.pyplot as plt
 
 import h5py
 import torch
 
-from mlflow import log_metric,log_metrics, log_param, log_params, log_artifacts
+from mlflow import log_metric,log_metrics, log_param, log_params, log_artifact
 import mlflow
 
 from config.config import FEATURE_PARMS
 from ai import DeepAudioNet
 from ai.training import train_CNN_LSTM
-from box.utilities import computing_performance, making_sequence, split_train_data, select_gpu_with_most_free_memory
-
+from box.utilities import computing_performance, making_sequence, split_train_data, select_gpu_with_most_free_memory,heat_map
+from box.utilities import plot_loss
 
 
 if __name__ == "__main__":
+    #Picking GPU
     selected_GPU, device = select_gpu_with_most_free_memory()
-    RUNS = 10
+    RUNS = 2
     TASK_LIST = ["Interview-Task"]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
     FEATURE_TYPE_LIST = ["melSpectrum", "rasta", "compare_lld","egemap_lld", "hubert_base", "wav2vec2_base"]
@@ -43,12 +44,12 @@ if __name__ == "__main__":
 
         for task in TASK_LIST:
             #Setting Mlflow experiment name
-            mlflow.set_experiment(f"{CORPUS}-{task} - {feature_type}")
+            mlflow.set_experiment(f"{CORPUS}-{task}")
             # Define hyperparameters
-            metric_fold_collection = {"accuracy": [], "recall": [], "precision": [], "auc": [], "f1": []}
+
             batch_size = 128
             learning_rate = 0.001
-            num_epochs = 100
+            num_epochs = 10
             validation_rate = 0.3
             EARLY_STOP = {"Do":True, "max_attempts": 10}
             TIMESTEP = FEATURE_PARMS[feature_type][1]
@@ -60,16 +61,21 @@ if __name__ == "__main__":
                     "Feature": feature_type,"Sequence length":TIMESTEP, "device":device,
                     "Interviewer in recording": with_interviewer
             }
+            # Loading default distribution folds files
+            folds = np.genfromtxt(f"default-folds_Androids-Corpus/fold_{task}.txt", delimiter=",", dtype=str)
+            num_folds = folds.shape[0]
+            metric_fold = {"accuracy": np.zeros((RUNS,num_folds)), "recall": np.zeros((RUNS,num_folds)),
+                           "precision": np.zeros((RUNS,5)), "auc": np.zeros((RUNS,num_folds)), "f1": np.zeros((RUNS,num_folds))}
 
-            metric_fold = []
-            for r in range(RUNS):
-                ID = f"{datetime.datetime.now()}"
-                with mlflow.start_run(run_name=f"{ID}_{r}") as run:
-                    log_params(params)
+            ID = f"{datetime.datetime.now()}"
+            with mlflow.start_run(run_name=f"{feature_type}_{ID}") as run:
+                log_params(params)
+                for r in range(RUNS):
+
+
                     label = np.genfromtxt(f"label/label_{CORPUS}_{task}.txt", dtype=str, delimiter=" ")[1:,:]
 
-                    #Loading default distribution folds files
-                    folds = np.genfromtxt(f"default-folds_Androids-Corpus/fold_{task}.txt", delimiter=",",dtype=str)
+
                     if not with_interviewer:
                         hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}.h5", 'r')
                     else:
@@ -98,7 +104,11 @@ if __name__ == "__main__":
 
                         print("Model initialization")
                         model = DeepAudioNet.CustomMel1(in_channels=x_train.shape[1], outputs=1).to(device)
-                        model = train_CNN_LSTM(model,params, train = [x_train,y_train], val = [x_val, y_val ], r = r, f = f)
+                        model,loss = train_CNN_LSTM(model,params, train = [x_train,y_train], val = [x_val, y_val ], r = r, f = f)
+
+                        path_png, path_pdf = plot_loss(loss[0], loss[1], R=r, F=f)
+                        log_artifact(path_png)
+                        log_artifact(path_pdf)
 
                         test_names = folds_test[f]
                         print(f"\nEvaluation ... [{feature_type.upper()}]")
@@ -120,33 +130,26 @@ if __name__ == "__main__":
                                 score.append(output)
 
                             print(f"\nFold {f+1} Run {r}")
-                            metric_fold = computing_performance(score, label=y_groundTruth, K=f)
-                            log_metrics(metric_fold,step=f)
+                            metric_fold = computing_performance(score,metric_fold, label=y_groundTruth, K=f,R = r)
 
-                            metric_fold_collection["accuracy"].append(metric_fold["accuracy"])
-                            metric_fold_collection["recall"].append(metric_fold["recall"])
-                            metric_fold_collection["precision"].append(metric_fold["precision"])
-                            metric_fold_collection["f1"].append(metric_fold["f1"])
-                            metric_fold_collection["auc"].append(metric_fold["auc"])
+                log_metric("accuracy_average", round(np.mean(metric_fold["accuracy"]),2))
+                log_metric("accuracy_std", round(np.std(metric_fold["accuracy"]),2))
 
+                log_metric("recall_average", round(np.mean(metric_fold["recall"]),2))
+                log_metric("recall_std", round(np.std(metric_fold["recall"]),2))
 
+                log_metric("precision_average", round(np.mean(metric_fold["precision"]),2))
+                log_metric("precision_std", round(np.std(metric_fold["precision"]),2))
 
-            with mlflow.start_run(run_name=f"{ID}__mean_std") as run:
-                log_params(params)
+                log_metric("f1_average", round(np.mean(metric_fold["f1"]),2))
+                log_metric("f1_std", round(np.std(metric_fold["f1"]),2))
 
-                log_metric("accuracy_average", round(np.mean(metric_fold_collection["accuracy"]),2))
-                log_metric("accuracy_std", round(np.std(metric_fold_collection["accuracy"]),2))
+                log_metric("auc_average", round(np.mean(metric_fold["auc"]),2))
+                log_metric("auc_std", round(np.std(metric_fold["auc"]),2))
 
-                log_metric("recall_average", round(np.mean(metric_fold_collection["recall"]),2))
-                log_metric("recall_std", round(np.std(metric_fold_collection["recall"]),2))
+                print("Saving heapmat of accuracy values through folds and runs ...")
+                figure_path_pdf,  figure_path_png = heat_map(metric_fold["accuracy"])
 
-                log_metric("precision_average", round(np.mean(metric_fold_collection["precision"]),2))
-                log_metric("precision_std", round(np.std(metric_fold_collection["precision"]),2))
-
-                log_metric("f1_average", round(np.mean(metric_fold_collection["f1"]),2))
-                log_metric("f1_std", round(np.std(metric_fold_collection["f1"]),2))
-
-                log_metric("auc_average", round(np.mean(metric_fold_collection["auc"]),2))
-                log_metric("auc_std", round(np.std(metric_fold_collection["auc"]),2))
-
+                log_artifact(figure_path_pdf)
+                log_artifact(figure_path_png)
 
