@@ -12,7 +12,8 @@ import os
 import datetime
 import numpy as np
 import matplotlib
-matplotlib.use('qtagg')
+matplotlib.use('TKAgg')
+
 import matplotlib.pyplot as plt
 
 import h5py
