@@ -33,7 +33,7 @@ if __name__ == "__main__":
     #Picking GPU
     selected_GPU, device = select_gpu_with_most_free_memory()
     RUNS = 10
-    TASK_LIST = ["Interview-Task"]  # , "Reading-Task"
+    TASK_LIST = ["Interview-Task", "Reading-Task"]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
     FEATURE_TYPE_LIST = ["melSpectrum", "rasta", "compare_lld","egemap_lld", "hubert_base", "wav2vec2_base"]
     with_interviewer = False
@@ -44,6 +44,8 @@ if __name__ == "__main__":
         mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
         for task in TASK_LIST:
+            if with_interviewer is True and task == "Reading-Task":
+                continue
             #Setting Mlflow experiment name
             mlflow.set_experiment(f"{CORPUS}-{task}")
             # Define hyperparameters
@@ -105,7 +107,7 @@ if __name__ == "__main__":
 
                         print("Model initialization")
                         model = DeepAudioNet.CustomMel1(in_channels=x_train.shape[1], outputs=1).to(device)
-                        model,loss = train_CNN_LSTM(model,params, train = [x_train,y_train], val = [x_val, y_val ], r = r, f = f)
+                        model,loss = train_CNN_LSTM(model,params, train = [x_train,y_train], val = [x_val, y_val ], tag_to_print= f"\n{task} {feature_type.upper()} Run {r + 1} Fold {f + 1}")
 
                         path_png = plot_loss(loss[0], loss[1], R=r, F=f)
                         log_artifact(path_png)

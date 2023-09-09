@@ -15,7 +15,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader,TensorDataset
 
-def train_CNN_LSTM(model, params, train=None, val=None, r = None, f = None):
+def train_CNN_LSTM(model, params, train=None, val=None, tag_to_print = ""):
     def print_progress_bar(iteration, total, bar_length=50):
         progress = (iteration / total)
         arrow = '=' * int(round(bar_length * progress))
@@ -63,7 +63,7 @@ def train_CNN_LSTM(model, params, train=None, val=None, r = None, f = None):
         avg_loss = total_loss / len(train_loader)
         loss_train_plot.append(avg_loss)
 
-        print(f"\n{feature_type.upper()} Run {r + 1} Fold {f + 1}")
+        print(tag_to_print)
         print(f"Training Loss: {avg_loss:.4f}")
         # Validation loop
         model.eval()

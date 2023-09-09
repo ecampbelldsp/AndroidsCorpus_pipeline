@@ -1,4 +1,8 @@
 # AndroidsCorpus_pipeline
+- Load environment from yaml file
+  - conda env create -f environment.yml
+    (- Create yml file - conda env export > environment.yml)
+
 Description of Androids-Corpus
 
 Database path format to proper load

@@ -116,6 +116,8 @@ def main(feature_type, set ="", TASK_LIST = "", root = "", with_interviewer = Fa
         os.mkdir("../features")
 
     for task in TASK_LIST:
+        if with_interviewer is True and task == "Reading-Task":
+            continue
         feature_extractor = Extractor(feature_type=feature_type, device=device, vad =True)
         label = np.genfromtxt(f"label/label_{set}_{task}.txt", dtype=str, delimiter=" ")
 
@@ -140,7 +142,7 @@ if __name__ == '__main__':
             root = sys.argv[1]
         paralel = True
         CORPUS = "Androids-Corpus"
-        TASK_LIST = ["Interview-Task"] # "Reading-Task"
+        TASK_LIST = ["Interview-Task", "Reading-Task"] # "Reading-Task"
         feature_list = ["wav2vec2_base", "rasta", "melSpectrum","egemap_lld", "compare_lld", "hubert_base"]
 
 
