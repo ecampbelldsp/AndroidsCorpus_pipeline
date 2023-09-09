@@ -107,7 +107,8 @@ if __name__ == "__main__":
 
                         print("Model initialization")
                         model = DeepAudioNet.CustomMel1(in_channels=x_train.shape[1], outputs=1).to(device)
-                        model,loss = train_CNN_LSTM(model,params, train = [x_train,y_train], val = [x_val, y_val ], tag_to_print= f"\n{task} {feature_type.upper()} Run {r + 1} Fold {f + 1}")
+                        model,loss = train_CNN_LSTM(model,params, train = [x_train,y_train], val = [x_val, y_val ],
+                                                    tag_to_print= f"\n{task} {feature_type.upper()} Run {r + 1} Fold {f + 1}")
 
                         path_png = plot_loss(loss[0], loss[1], R=r, F=f)
                         log_artifact(path_png)
