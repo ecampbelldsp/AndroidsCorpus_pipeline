@@ -130,11 +130,10 @@ def heat_map(data):
 
     if not os.path.exists("fig"):
         os.mkdir("fig")
-    plt.savefig("fig/accuracy_heatmap.pdf")
     plt.savefig("fig/accuracy_heatmap.png")
     plt.close()
 
-    return "fig/accuracy_heatmap.pdf", "fig/accuracy_heatmap.png"
+    return "fig/accuracy_heatmap.png"
 
 def plot_loss(training_loss,validation_loss, R="", F=""):
 
@@ -154,7 +153,6 @@ def plot_loss(training_loss,validation_loss, R="", F=""):
     if not os.path.exists("fig"):
         os.mkdir("fig")
     plt.savefig(f"fig/loss_run{R}_fold{F}.png")
-    plt.savefig(f"fig/loss_run{R}_fold{F}.pdf")
     plt.close()
 
-    return f"fig/loss_run{R}_fold{F}.png", f"fig/loss_run{R}_fold{F}.pdf"
+    return f"fig/loss_run{R}_fold{F}.png"

@@ -107,9 +107,8 @@ if __name__ == "__main__":
                         model = DeepAudioNet.CustomMel1(in_channels=x_train.shape[1], outputs=1).to(device)
                         model,loss = train_CNN_LSTM(model,params, train = [x_train,y_train], val = [x_val, y_val ], r = r, f = f)
 
-                        path_png, path_pdf = plot_loss(loss[0], loss[1], R=r, F=f)
+                        path_png = plot_loss(loss[0], loss[1], R=r, F=f)
                         log_artifact(path_png)
-                        log_artifact(path_pdf)
 
                         test_names = folds_test[f]
                         print(f"\nEvaluation ... [{feature_type.upper()}]")
@@ -149,8 +148,7 @@ if __name__ == "__main__":
                 log_metric("auc_std", round(np.std(metric_fold["auc"]),2))
 
                 print("Saving heapmat of accuracy values through folds and runs ...")
-                figure_path_pdf,  figure_path_png = heat_map(metric_fold["accuracy"])
+                figure_path_png = heat_map(metric_fold["accuracy"])
 
-                log_artifact(figure_path_pdf)
                 log_artifact(figure_path_png)
 
