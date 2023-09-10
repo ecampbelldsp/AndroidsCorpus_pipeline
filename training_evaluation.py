@@ -15,9 +15,8 @@ import argparse
 
 import numpy as np
 import matplotlib
-matplotlib.use('TKAgg')
+matplotlib.use('Agg')  #TKAgg
 
-import matplotlib.pyplot as plt
 
 import h5py
 import torch
@@ -50,7 +49,9 @@ if __name__ == "__main__":
     selected_GPU, device = select_gpu_with_most_free_memory()
     TASK_LIST = ["Reading-Task","Interview-Task" ]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
-    FEATURE_TYPE_LIST = ["melSpectrum", "rasta", "compare_lld","egemap_lld","hubert_base", "wav2vec2_base"] # 
+
+    FEATURE_TYPE_LIST = ["hubert_base", "wav2vec2_base"]  #"melSpectrum", "rasta", "compare_lld","egemap_lld",
+
 
     # feature_type = "melSpectrum"#"melSpectrum" compare_lld egemap_lld rasta hubert_base wav2vec2_base
     for feature_type in FEATURE_TYPE_LIST:
