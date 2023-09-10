@@ -81,14 +81,14 @@ if __name__ == "__main__":
                 log_params(params)
                 for r in range(RUNS):
 
-
                     label = np.genfromtxt(f"label/label_{CORPUS}_{task}.txt", dtype=str, delimiter=" ")[1:,:]
 
 
-                    if not with_interviewer:
-                        hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}.h5", 'r')
-                    else:
+                    if  with_interviewer:
                         hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}_with_interviewer.h5", 'r')
+                    else:
+                        hf = h5py.File(f"features/{feature_type}_{CORPUS}_{task}.h5", 'r')
+
                     #Creating K-Folds and loading features
                     folds_test = []
                     for f in range(folds.shape[0]):
