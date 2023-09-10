@@ -48,6 +48,7 @@ if __name__ == "__main__":
             os.mkdir("model")
         mlflow.set_tracking_uri("http://127.0.0.1:5000")
 
+        print(f"Interviewer in recordings: {with_interviewer}")
         for task in TASK_LIST:
             if with_interviewer is True and task == "Reading-Task":
                 continue
