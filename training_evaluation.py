@@ -34,8 +34,8 @@ from box.utilities import plot_loss
 if __name__ == "__main__":
     #Picking GPU
     selected_GPU, device = select_gpu_with_most_free_memory()
-    RUNS = 10
-    TASK_LIST = ["Interview-Task", "Reading-Task"]  # , "Reading-Task"
+    RUNS = 1
+    TASK_LIST = ["Reading-Task","Interview-Task" ]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
     FEATURE_TYPE_LIST = ["melSpectrum", "rasta", "compare_lld","egemap_lld", "hubert_base", "wav2vec2_base"]
     if len(sys.argv) > 1:
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
             batch_size = 128
             learning_rate = 0.001
-            num_epochs = 100
+            num_epochs = 1
             validation_rate = 0.3
             EARLY_STOP = {"Do":True, "max_attempts": 10}
             TIMESTEP = FEATURE_PARMS[feature_type][1]
