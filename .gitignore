@@ -2,7 +2,7 @@ mlruns
 mlartifacts
 outputs
 model
-Corpora_analysis/Androids-Corpus/Interview-Task/age.pdf
+Corpora_analysis
 *.pdf
 fig
 
