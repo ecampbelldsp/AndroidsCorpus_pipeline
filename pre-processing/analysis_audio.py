@@ -57,7 +57,7 @@ def main():
         # Global Health condition
         plot_histogram(data_healthy =label[1:,-1].astype(float)[neg_cond],
             data_unhealthy = label[1:,-1].astype(float)[pos_cond],
-            save_path=f"{SAVE}health_condition.pdf",
+            save_path=f"{SAVE}health_condition_{task}.pdf",
             xlabel="Health condition",
             ylabel="Frequency",
             title="Health condition")
@@ -65,7 +65,7 @@ def main():
         #Graphics - Educational level
         subplot_2figure_histogram(data_healthy =label[1:,3].astype(float)[neg_cond],
                         data_unhealthy = label[1:,3].astype(float)[pos_cond],
-                        save_path=f"{SAVE}educational-level.pdf",
+                        save_path=f"{SAVE}educational-level_{task}.pdf",
                         xlabel="Educational level",
                         ylabel="Frequency",
                         title="Educational level distribution. Control vs Depressed patients")
@@ -73,7 +73,7 @@ def main():
         #Graphics - Age
         subplot_2figure_histogram(data_healthy =label[1:,2].astype(float)[neg_cond],
                         data_unhealthy = label[1:,2].astype(float)[pos_cond],
-                        save_path=f"{SAVE}age.pdf",
+                        save_path=f"{SAVE}age_{task}.pdf",
                         xlabel="Age",
                         ylabel="Frequency",
                         title="Age. Control vs Depressed patients")
@@ -110,37 +110,26 @@ def main():
         axs[1].set_ylabel("Frequency")
         axs[1].set_xlabel("Health Condition")
 
-        plt.savefig(f"{SAVE}gender.pdf")
+        plt.savefig(f"{SAVE}gender_{task}.pdf")
         plt.close()
 
         # for task in ["Interview-Task", "Reading-Task"]:
         if task == "Interview-Task" and not with_interviewer:
-            audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio_clip/"
+            audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio_clip_gathering/"
         elif task == "Interview-Task" and with_interviewer:
             audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio/"
         elif task == "Reading-Task":
-            audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio/"
+            audio_path = f"/media/ecampbell/D/Data-io/Androids-Corpus/{task}/audio_clip_gathering/"
         duration_pos, duration_neg = [], []
         for i, name in enumerate(label[1:,0]):
             print(f"Recording {i+1} - {len(label[1:,0])}  {task}")
+            samples, fs = snd.read(f"{audio_path}{name}")
 
-            if task == "Interview-Task" and not with_interviewer:
-                name = name[:-4]
-                audio_clips = os.listdir(f"{audio_path}{name}")
-                samples = []
-                for name_clips in audio_clips:
-                    samples_clip,fs = snd.read(f"{audio_path}{name}/{name_clips}")
-                    samples.append(samples_clip)
-                samples = np.concatenate(samples)
-            elif task == "Interview-Task" and with_interviewer:
-                samples, fs = snd.read(f"{audio_path}{name}")
-            elif task == "Reading-Task":
-                samples, fs = snd.read(f"{audio_path}{name}")
             if np.any(np.isnan(samples)):
                 raise ValueError(f"Signal {name} has NAN values")
 
-            duration = len(samples) / fs
-            if duration < 5:
+            duration = len(samples) / (fs*60)
+            if duration < 5/60:
                 problematic_signals.append([name,duration,task])
 
             if label[1:,-1][i] == "0":
@@ -148,13 +137,13 @@ def main():
             elif label[1:,-1][i] == "1":
                 duration_pos.append(duration)
 
-        plt.figure(figsize=(10, 4))
-        plt.title("Recording length of healthy and unhealthy patients.")
-        plt.boxplot([duration_neg,duration_pos], showfliers=True)
-        plt.xticks([1, 2], labels=["Healthy", "Unhealthy"])
-
-        plt.ylabel("Seconds")
-        plt.xlabel("Health condition")
+        plt.figure(figsize=(5, 4))
+        # plt.title("Recording length of healthy and unhealthy patients.")
+        plt.boxplot([duration_neg,duration_pos], showfliers=False)
+        plt.xticks([1, 2], labels=["Control", "Depression"])
+        plt.ylim(0,6)
+        plt.ylabel("Minutes")
+        # plt.xlabel("Health condition")
         plt.savefig(f"{SAVE}recording_length-{task}.pdf")
         plt.close()
 
