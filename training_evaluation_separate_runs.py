@@ -47,7 +47,7 @@ if __name__ == "__main__":
     RUNS = args.r
     #Picking GPU
     selected_GPU, device = select_gpu_with_most_free_memory()
-    TASK_LIST = ["Reading-Task","Interview-Task" ]  # , "Reading-Task"
+    TASK_LIST = ["Interview-Task", "Reading-Task" ]  # , "Reading-Task"
     CORPUS = "Androids-Corpus"
 
     FEATURE_TYPE_LIST = ["melSpectrum", "rasta", "compare_lld","egemap_lld","hubert_base", "wav2vec2_base"]  #
@@ -152,23 +152,23 @@ if __name__ == "__main__":
                             print(f"\nFold {f+1} Run {r}")
                             metric_fold = computing_performance(score,metric_fold, label=y_groundTruth, K=f,R = r)
 
-                log_metric("accuracy_average", round(np.mean(metric_fold["accuracy"]),2))
-                log_metric("accuracy_std", round(np.std(metric_fold["accuracy"]),2))
+                    log_metric("accuracy", round(np.mean(metric_fold["accuracy"][r,:]),2))
+                    log_metric("accuracy_std", round(np.std(metric_fold["accuracy"][r,:]),2))
 
-                log_metric("recall_average", round(np.mean(metric_fold["recall"]),2))
-                log_metric("recall_std", round(np.std(metric_fold["recall"]),2))
+                    log_metric("recall", round(np.mean(metric_fold["recall"][r,:]),2))
+                    log_metric("recall_std", round(np.std(metric_fold["recall"][r,:]),2))
 
-                log_metric("precision_average", round(np.mean(metric_fold["precision"]),2))
-                log_metric("precision_std", round(np.std(metric_fold["precision"]),2))
+                    log_metric("precision", round(np.mean(metric_fold["precision"][r,:]),2))
+                    log_metric("precision_std", round(np.std(metric_fold["precision"][r,:]),2))
 
-                log_metric("f1_average", round(np.mean(metric_fold["f1"]),2))
-                log_metric("f1_std", round(np.std(metric_fold["f1"]),2))
+                    log_metric("f1", round(np.mean(metric_fold["f1"][r,:]),2))
+                    log_metric("f1_std", round(np.std(metric_fold["f1"][r,:]),2))
 
-                log_metric("auc_average", round(np.mean(metric_fold["auc"]),2))
-                log_metric("auc_std", round(np.std(metric_fold["auc"]),2))
+                    log_metric("auc", round(np.mean(metric_fold["auc"][r,:]),2))
+                    log_metric("auc_std", round(np.std(metric_fold["auc"][r,:]),2))
 
-                print("Saving heapmat of accuracy values through folds and runs ...")
-                figure_path_png = heat_map(metric_fold["accuracy"])
+                    print("Saving heapmat of accuracy values through folds and runs ...")
+                    figure_path_png = heat_map(metric_fold["accuracy"])
 
-                log_artifact(figure_path_png)
+                    log_artifact(figure_path_png)
 
