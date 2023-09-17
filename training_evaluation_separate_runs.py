@@ -167,8 +167,7 @@ if __name__ == "__main__":
                     log_metric("auc", round(np.mean(metric_fold["auc"][r,:]),2))
                     log_metric("auc_std", round(np.std(metric_fold["auc"][r,:]),2))
 
-                    print("Saving heapmat of accuracy values through folds and runs ...")
-                    figure_path_png = heat_map(metric_fold["accuracy"])
-
-                    log_artifact(figure_path_png)
+                    # print("Saving heapmat of accuracy values through folds and runs ...")
+                    # figure_path_png = heat_map(metric_fold["accuracy"])
+                    # log_artifact(figure_path_png)
 
